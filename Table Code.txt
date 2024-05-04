@@ -1,0 +1,63 @@
+ Here I break table in 2 by 2 format & select particular cell
+
+import React, { useState } from 'react';
+import '../../blocks/blocks.css';
+
+const TableFormatDetails = ({ itemData }) => {
+  const { title, tableFormat, props } = itemData.content; // Destructure title and tableFormat from itemData
+  const kpis = tableFormat.map(item => ({ id: item.id, label: item.label, props: item.props }));
+
+  const calculateTableLayout = () => {
+    const totalKPIs = kpis.length;
+    const sqrt = Math.sqrt(totalKPIs);
+    const rows = Math.ceil(sqrt);
+    const columns = Math.ceil(totalKPIs / rows);
+    return { rows, columns };
+  };
+
+  const { rows, columns } = calculateTableLayout();
+
+  const chunkedKpis = [];
+  for (let i = 0; i < kpis.length; i += columns) {
+    chunkedKpis.push(kpis.slice(i, i + columns));
+  }
+
+  const [clickedCell, setClickedCell] = useState(null);
+
+  const handleCellClick = (id) => {
+    console.log('Clicked cell ID:', id);
+    setClickedCell(id);
+  };
+
+  return (
+    <div style={props}>
+      {title && <h3 style={{ color: props.titleColor, fontSize: props.titleFontSize }}>{title}</h3>} {/* Render title if it exists */}
+      <table className="custom-table" style={{ width: '100%', height: "70%" }}>
+        <tbody>
+          {chunkedKpis.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((kpi, columnIndex) => (
+                <td
+                  key={columnIndex}
+                  style={{
+                    ...kpi.props,
+                    background: kpi.id === clickedCell ? '#082567' : kpi.props.background // Apply red border if cell is clicked
+                  }}
+                  onClick={() => handleCellClick(kpi.id)}
+                >
+                  {kpi.label}
+                </td>
+              ))}
+              {/* Add empty cells to fill the row */}
+              {/* {row.length < columns &&
+                Array(columns - row.length).fill(null).map((_, index) => <td key={row.length + index}></td>)
+              } */}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default TableFormatDetails;
